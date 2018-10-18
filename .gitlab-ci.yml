@@ -1,0 +1,30 @@
+image: clojure:lein-2.7.1-alpine
+
+stages:
+- build
+- test
+- deploy
+
+variables:
+  CONTAINER_TEST_IMAGE: registry.gitlab.com/lehrmeister/clj-helper:$CI_COMMIT_REF_NAME
+  CONTAINER_RELEASE_IMAGE: registry.gitlab.com/lehrmeister/clj-helper:latest
+  LEIN_SNAPSHOTS_IN_RELEASE: "TRUE"
+
+build:
+  stage: build
+  script:
+    - lein clean
+    - lein uberjar
+
+test1:
+  stage: test
+  script:
+    - lein test
+
+deploy:
+  stage: deploy
+  script:
+    - echo "{:user {:deploy-repositories [[\"internal\" {:url \"${ARTIFACTORY_DEPLOY_REPOSITORY}\" :username :env/artifactory_user :password :env/artifactory_pw :sign-releases false}]]}}" > ~/.lein/profiles.clj
+    - lein deploy internal
+  only:
+    - master
