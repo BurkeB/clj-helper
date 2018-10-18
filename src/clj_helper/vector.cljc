@@ -40,3 +40,6 @@
 
 (defn get-from-array [array key value]
   (first (filter #(= (get % key) value) array)))
+
+(defn mapvec-to-map [vec]
+  (into {} (map (juxt :id identity)) vec))
