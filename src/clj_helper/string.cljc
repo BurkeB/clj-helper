@@ -1,6 +1,5 @@
 (ns clj-helper.string
-  (:require [struct.core :as st]
-            [clojure.string :as string]
+  (:require [clojure.string :as string]
             #?(:clj [clojure.edn :as edn]
                :cljs [cljs.reader :as edn]))
   #?(:clj (:import [java.time LocalDateTime])))

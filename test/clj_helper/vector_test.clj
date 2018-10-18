@@ -65,3 +65,9 @@
     (is (= (insert [0 1 2 3 4 5 6 7 8 9] "x" 9) [0 1 2 3 4 5 6 7 8 "x" 9]))
     (is (= (insert [0 1 2 3 4 5 6 7 8 9] "x" 10) [0 1 2 3 4 5 6 7 8 9 "x"])) ;;; insert allows appending!
     ))
+
+
+(deftest mapvec-to-map-test
+  (is (= (mapvec-to-map [{:id 2 :cc 44}{:id 1 :cc 22}])
+         {2 {:id 2 :cc 44}
+          1 {:id 1 :cc 22}})))
