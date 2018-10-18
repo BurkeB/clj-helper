@@ -41,5 +41,8 @@
 (defn get-from-array [array key value]
   (first (filter #(= (get % key) value) array)))
 
+(defn get-by [coll key val]
+  (some #(when (= (key %) val) %) coll))
+
 (defn mapvec-to-map [vec]
   (into {} (map (juxt :id identity)) vec))
