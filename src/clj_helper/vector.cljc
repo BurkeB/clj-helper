@@ -4,7 +4,7 @@
   "checks if pos is valid index in coll"
   (and (< pos (count coll)) (>= pos 0)))
 
-(defn remove
+(defn remove-nth
   "remove elem in coll"
   [coll pos]
   (if-not (inside? coll pos)
@@ -25,7 +25,7 @@
     (if (or (zero? pos) (not (inside? coll pos)))
       coll
      (-> coll
-         (remove pos)
+         (remove-nth pos)
          (insert elem (dec pos))))))
 
 (defn move-right
@@ -35,7 +35,7 @@
     (if (or (= pos (dec (count coll))) (not (inside? coll pos)))
       coll
      (-> coll
-         (remove pos)
+         (remove-nth pos)
          (insert elem (inc pos))))))
 
 (defn get-from-array [array key value]
