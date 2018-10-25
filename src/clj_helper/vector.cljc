@@ -12,7 +12,7 @@
     (vec (concat (subvec coll 0 pos) (subvec coll (inc pos))))))
 
 (defn insert
-  "insert elem in coll"
+  "insert elem in coll at pos"
   [coll element pos]
   (if-not (<= 0 pos (count coll))
     coll
@@ -37,6 +37,20 @@
      (-> coll
          (remove-nth pos)
          (insert elem (inc pos))))))
+
+(defn move
+  "move elem from 'from' to 'to'"
+  [coll from to]
+  (let [elem (get coll from)]
+    (if (or (not (inside? coll to)) (not (inside? coll from)))
+      coll
+      (let [elem (nth coll from)
+            to (if (> to from)
+                 to
+                 to)]
+      (-> coll
+          (remove-nth from)
+          (insert elem to))))))
 
 (defn get-from-array [array key value]
   (first (filter #(= (get % key) value) array)))
