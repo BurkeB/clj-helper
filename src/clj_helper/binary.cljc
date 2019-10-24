@@ -3,16 +3,35 @@
                    [java.util Base64])))
 
 
+(defn byte-array->string [bytearray]
+  (apply str
+         (map char bytearray)))
+
+(defn string->byte-array [string]
+  (byte-array (map byte string)))
+
+
 #?(:clj
    (defn byte-buffer->byte-array [Buffer]
-     (let [buffer-size (.capacity Buffer)
-           array (byte-array buffer-size)]
-       (.get Buffer array 0 buffer-size)
-       array)))
+       (.array Buffer)))
 
 #?(:clj
    (defn byte-array->base64 [byte-array]
      (let [encoder (Base64/getEncoder)]
-       (.encodeToString encoder (.encode encoder byte-array))
-     )))
+       (byte-array->string (.encode encoder byte-array)))))
+
+#?(:clj
+   (defn byte-buffer->base64 [Buffer]
+     (-> Buffer
+         byte-buffer->byte-array
+         byte-array->base64)))
+
+
+#?(:clj
+   (defn base64->byte-array [base64-string]
+     (let [decoder (Base64/getDecoder)]
+       (.decode decoder (.toString base64-string))
+       )))
+
+
 
