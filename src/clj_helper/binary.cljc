@@ -35,3 +35,16 @@
 
 
 
+#?(:clj
+   (defn string->base64 [string]
+     (-> string
+         string->byte-array
+         byte-array->base64)))
+
+#?(:clj
+   (defn base64->string [base64]
+     (-> base64
+         base64->byte-array
+         byte-array->string)))
+
+

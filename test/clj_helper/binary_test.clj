@@ -20,12 +20,23 @@
       (is (=
            (byte-array->base64 (string->byte-array test-string))
            test-result))))
-
+  (testing "Directfunction Encode Hallo to SGFsbG8="
+    (let [test-string "Hallo"
+          test-result "SGFsbG8="]
+      (is (=
+           (string->base64 test-string)
+           test-result))))
   (testing "Decode VGVzdA== to Test"
     (let [test-string "Test"
           test-base64 "VGVzdA=="]
       (is (=
            (byte-array->string (base64->byte-array test-base64))
+           test-string))))
+  (testing "Directfunction Decode VGVzdA== to Test"
+    (let [test-string "Test"
+          test-base64 "VGVzdA=="]
+      (is (=
+           (base64->string test-base64)
            test-string))))
   (let [random-string "fsfdfdggfdfdg"]
     (testing (str "Base64 Encode/Decode Roundtrip with random string: " random-string)
