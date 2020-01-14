@@ -34,3 +34,12 @@
                           (->> (string/join ""))
                           )) "-" (gensym (shorten prefix 4)))
              32)))
+
+(defn date->str [date]
+  (try
+    (.toLocaleString date)
+    (catch
+        #?(:cljs js/Error
+           :clj Exception) e
+      (str date))))
+
