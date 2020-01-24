@@ -43,3 +43,7 @@
            :clj Exception) e
       (str date))))
 
+
+(defn parse-int [s]
+  #?(:clj (Integer/parseInt s)
+     :cljs (js/parseInt s)))
