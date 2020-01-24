@@ -45,5 +45,11 @@
 
 
 (defn parse-int [s]
-  #?(:clj (Integer/parseInt s)
-     :cljs (js/parseInt s)))
+  #?(:clj (try
+            (Integer/parseInt s)
+            (catch Exception e
+              nil))
+     :cljs (try
+             (js/parseInt s)
+             (catch :default e
+               nil))))
