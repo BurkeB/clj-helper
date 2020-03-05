@@ -58,5 +58,13 @@
 (defn get-by [coll key val]
   (some #(when (= (key %) val) %) coll))
 
+(defn get-index-by [coll key val]
+  (first (keep (fn [[index element]]
+                 (when (= (key element) val)
+                   index))
+               (map-indexed vector coll))))
+
 (defn mapvec-to-map [vec]
   (into {} (map (juxt :id identity)) vec))
+
+

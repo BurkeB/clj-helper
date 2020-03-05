@@ -1,4 +1,4 @@
-(defproject wwsoftware/clj-helper "0.0.3.1"
+(defproject wwsoftware/clj-helper "0.0.3.2"
   :description "Helper Functions for Clojure(-Script) Projects"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
