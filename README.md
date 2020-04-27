@@ -1,14 +1,9 @@
 # clj-helper
 
-A Clojure library designed to ... well, that part is up to you.
-
-## Usage
-
-FIXME
+A Clojure library with helper functions for common tasks.
 
 ## License
 
-Copyright © 2018 FIXME
+Copyright © 2020 Bruno Burke.
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the Eclipse Public License version 2.0.
