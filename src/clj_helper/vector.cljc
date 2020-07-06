@@ -64,6 +64,10 @@
                    index))
                (map-indexed vector coll))))
 
+(defn remove-by [coll key val]
+  (let [index (get-index-by coll key val)]
+    (remove-nth coll index)))
+
 (defn mapvec-to-map [vec]
   (into {} (map (juxt :id identity)) vec))
 
