@@ -22,7 +22,7 @@ test1:
 deploy:
   stage: deploy
   script:
-    - echo "{:user {:deploy-repositories [[\"internal\" {:url \"${ARTIFACTORY_DEPLOY_REPOSITORY}\" :username :env/artifactory_user :password :env/artifactory_pw :sign-releases false}]]}}" > ~/.lein/profiles.clj
+    - echo "{:user {:deploy-repositories [[\"internal\" {:url \"${ARTIFACTORY_DEPLOY_REPOSITORY}\" :username :env/artifactory_user :password :env/artifactory_pw :sign-releases false :checksum :ignore}]]}}" > ~/.lein/profiles.clj
     - lein deploy internal
   only:
     - master
