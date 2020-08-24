@@ -4,8 +4,6 @@
                :cljs [cljs.reader :as edn]))
   #?(:clj (:import [java.time LocalDateTime])))
 
-
-
 (defn str= [a1 a2]
   (= (str a1) (str a2)))
 
@@ -16,7 +14,15 @@
   (edn/read-string str))
 
 (defn shorten [string n]
-  (subs string 0 (min n (count string))))
+  (when string
+    (subs string 0 (min n (count string)))))
+
+(defn safe-name [val]
+  (if (keyword? val)
+    (name val)
+    (if (string? val)
+      val
+      "")))
 
 (defn get-random-code [length]
   (let [chars (string/split "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" #"")]
