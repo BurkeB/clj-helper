@@ -72,3 +72,7 @@
   (into {} (map (juxt :id identity)) vec))
 
 
+(defn vconj [coll element]
+  (if (vector? coll)
+    (conj coll element)
+    (recur (vec coll) element)))
