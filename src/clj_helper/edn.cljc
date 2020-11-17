@@ -11,3 +11,7 @@
 
 (defn deserialize-edn [ednstr]
   (edn/read-string ednstr))
+
+#?(:cljs
+   (defn clj->json [object]
+     (js/JSON.stringify (clj->js object) nil 2)))
