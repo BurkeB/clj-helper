@@ -2,7 +2,7 @@
   (:require [clojure.string :as string]
             #?(:clj [clojure.edn :as edn]
                :cljs [cljs.reader :as edn]))
-  #?(:clj (:import [java.time LocalDateTime])))
+  #?(:clj (:import [java.time Instant])))
 
 (defn str= [a1 a2]
   (= (str a1) (str a2)))
@@ -30,15 +30,14 @@
 
 (defn get-unique-id [prefix]
   (let [now #?(:cljs (.toISOString (new js/Date))
-               :clj (.toString (LocalDateTime/now)))]
+               :clj (.toString (Instant/now)))
+        code (str (gensym (shorten prefix 4)))]
     (shorten (str
               #?(:cljs (.join (.split (.substr now 0 19) ":") "-")
                  :clj (-> now
                           (shorten 19)
-                          (string/replace #"-" "")
-                          (string/split #"\:")
-                          (->> (string/join ""))
-                          )) "-" (gensym (shorten prefix 4)))
+                          (string/replace #"(-|\:)" "")
+                          )) "-" code)
              32)))
 
 (defn date->str [date]
