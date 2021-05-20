@@ -1,7 +1,8 @@
 (ns clj-helper.vector)
 
-(defn inside? [coll pos]
+(defn inside?
   "checks if pos is valid index in coll"
+  [coll pos]
   (and (< pos (count coll)) (>= pos 0)))
 
 (defn remove-nth
@@ -24,9 +25,9 @@
   (let [elem (get coll pos)]
     (if (or (zero? pos) (not (inside? coll pos)))
       coll
-     (-> coll
-         (remove-nth pos)
-         (insert elem (dec pos))))))
+      (-> coll
+          (remove-nth pos)
+          (insert elem (dec pos))))))
 
 (defn move-right
   "move elem in coll to the right"
@@ -34,9 +35,9 @@
   (let [elem (get coll pos)]
     (if (or (= pos (dec (count coll))) (not (inside? coll pos)))
       coll
-     (-> coll
-         (remove-nth pos)
-         (insert elem (inc pos))))))
+      (-> coll
+          (remove-nth pos)
+          (insert elem (inc pos))))))
 
 (defn move
   "move elem from 'from' to 'to'"
@@ -48,9 +49,9 @@
             to (if (> to from)
                  to
                  to)]
-      (-> coll
-          (remove-nth from)
-          (insert elem to))))))
+        (-> coll
+            (remove-nth from)
+            (insert elem to))))))
 
 (defn get-from-array [array key value]
   (first (filter #(= (get % key) value) array)))
