@@ -87,3 +87,29 @@
   (is (= (mapvec-to-map [{:id 2 :cc 44}{:id 1 :cc 22}])
          {2 {:id 2 :cc 44}
           1 {:id 1 :cc 22}})))
+
+(deftest get-by-test
+  (testing "get with keyword key"
+    (let [data [{:id 5 :a 1}
+                {:id 6 :a 2}
+                {:id 1 :a 3}
+                {:id 7 :a 4}]]
+      (is (= (get-by data :id 1) {:id 1 :a 3}))
+      (is (= (get-by data :id 6) {:id 6 :a 2}))))
+  (testing "get with string key"
+    (let [data [{:id "5" :a 1}
+                {:id "6" :a 2}
+                {:id "1" :a 3}
+                {:id "7" :a 4}]]
+      (is (= (get-by data :id "1") {:id "1" :a 3}))
+      (is (= (get-by data :id "6") {:id "6" :a 2}))
+      (is (not= (get-by data :id 6) {:id "6" :a 2}))
+      (is (= (get-by data :id 6) nil))))
+  (testing "get with vector key"
+    (let [data [{:data {:id "5" :a 1}}
+                {:data {:id "6" :a 2}}
+                {:data {:id "1" :a 3}}
+                {:data {:id "7" :a 4}}]]
+      (is (= (get-by data [:data :id] "1") {:data {:id "1" :a 3}}))
+      (is (= (get-by data [:data :id] "6") {:data {:id "6" :a 2}}))
+      (is (not= (get-by data [:data :id] 6) {:data {:id "6" :a 2}})))))

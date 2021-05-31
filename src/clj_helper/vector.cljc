@@ -57,7 +57,12 @@
   (first (filter #(= (get % key) value) array)))
 
 (defn get-by [coll key val]
-  (some #(when (= (key %) val) %) coll))
+  (let [get-fn (if (vector? key)
+                 get-in
+                 get)]
+    (some
+     #(when (= (get-fn % key) val) %)
+     coll)))
 
 (defn get-index-by [coll key val]
   (first (keep (fn [[index element]]
