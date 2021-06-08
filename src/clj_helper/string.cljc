@@ -36,16 +36,15 @@
               #?(:cljs (.join (.split (.substr now 0 19) ":") "-")
                  :clj (-> now
                           (shorten 19)
-                          (string/replace #"(-|\:)" "")
-                          )) "-" code)
+                          (string/replace #"(-|\:)" ""))) "-" code)
              32)))
 
 (defn date->str [date]
   (try
     (.toLocaleString date)
     (catch
-        #?(:cljs js/Error
-           :clj Exception) e
+     #?(:cljs js/Error
+        :clj Exception) e
       (str date))))
 
 
@@ -58,3 +57,7 @@
              (js/parseInt s)
              (catch :default e
                nil))))
+
+
+(defn quote-text [text]
+  (str "»" text "«"))
