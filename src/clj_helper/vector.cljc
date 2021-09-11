@@ -1,14 +1,22 @@
 (ns clj-helper.vector)
 
-(defn inside?
+(defn max-index
+  "returns highest index"
+  [coll]
+  (dec (count coll)))
+
+(defn valid-index?
   "checks if pos is valid index in coll"
   [coll pos]
-  (and (< pos (count coll)) (>= pos 0)))
+  (and (<= pos (max-index coll))
+       (>= pos 0)))
+
+(def inside? valid-index?)
 
 (defn remove-nth
   "remove elem in coll"
   [coll pos]
-  (if-not (inside? coll pos)
+  (if-not (valid-index? coll pos)
     coll
     (vec (concat (subvec coll 0 pos) (subvec coll (inc pos))))))
 
@@ -23,7 +31,7 @@
   "move elem in coll to the left"
   [coll pos]
   (let [elem (get coll pos)]
-    (if (or (zero? pos) (not (inside? coll pos)))
+    (if (or (zero? pos) (not (valid-index? coll pos)))
       coll
       (-> coll
           (remove-nth pos)
@@ -33,7 +41,7 @@
   "move elem in coll to the right"
   [coll pos]
   (let [elem (get coll pos)]
-    (if (or (= pos (dec (count coll))) (not (inside? coll pos)))
+    (if (or (= pos (dec (count coll))) (not (valid-index? coll pos)))
       coll
       (-> coll
           (remove-nth pos)
@@ -43,7 +51,7 @@
   "move elem from 'from' to 'to'"
   [coll from to]
   (let [elem (get coll from)]
-    (if (or (not (inside? coll to)) (not (inside? coll from)))
+    (if (or (not (valid-index? coll to)) (not (valid-index? coll from)))
       coll
       (let [elem (nth coll from)
             to (if (> to from)
