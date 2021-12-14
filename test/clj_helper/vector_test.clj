@@ -1,6 +1,7 @@
 (ns clj-helper.vector-test
   (:require [clojure.test :refer :all]
-            [clj-helper.vector :refer :all]))
+            [clj-helper.vector :refer :all]
+            [clojure.string :refer [upper-case lower-case]]))
 
 (deftest move-test
   (testing "vector move left index out of bound"
@@ -105,6 +106,17 @@
       (is (= (get-by data :id "6") {:id "6" :a 2}))
       (is (not= (get-by data :id 6) {:id "6" :a 2}))
       (is (= (get-by data :id 6) nil))))
+  (testing "get with fn key"
+    (let [data [{:id "str1" :a 1}
+                {:id "str2" :a 2}
+                {:id "str3" :a 3}
+                {:id "str4" :a 4}]]
+      (is (= (get-by data (comp upper-case :id) "STR2") {:id "str2" :a 2})))
+    (let [data [{:id :alpha :a 1}
+                {:id :beta :a 2}
+                {:id :gamma :a 3}
+                {:id :delta :a 4}]]
+      (is (= (get-by data (comp name :id) "gamma") {:id :gamma :a 3}))))
   (testing "get with vector key"
     (let [data [{:data {:id "5" :a 1}}
                 {:data {:id "6" :a 2}}

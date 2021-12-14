@@ -67,7 +67,7 @@
 (defn get-by [coll key val]
   (let [get-fn (if (vector? key)
                  get-in
-                 get)]
+                 key)]
     (some
      #(when (= (get-fn % key) val) %)
      coll)))
