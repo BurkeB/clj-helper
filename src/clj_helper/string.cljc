@@ -61,3 +61,12 @@
 
 (defn quote-text [text]
   (str "»" text "«"))
+
+
+(defn parameterstring [data & {:keys [assignment separation quotation]
+                               :or {assignment "="
+                                    separation ", "
+                                    quotation "\""}}]
+  (string/join separation
+               (map (fn [[key value]]
+                      (str (name key) assignment quotation value quotation)) data)))

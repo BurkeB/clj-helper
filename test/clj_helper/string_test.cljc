@@ -24,3 +24,6 @@
                  sut/set->str
                  sut/str->set))))))
 
+
+
+;;;TODO Add tests for parameterstring
