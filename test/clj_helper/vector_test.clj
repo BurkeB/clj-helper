@@ -3,7 +3,21 @@
             [clj-helper.vector :refer :all]
             [clojure.string :refer [upper-case lower-case]]))
 
-(deftest move-test
+(deftest move-left-right-test
+  (testing "can-move-left? test"
+    (is (can-move-left? [0 1 2 3 4 5 6 7 8 9] 1))
+    (is (can-move-left? [0 1 2 3 4 5 6 7 8 9] 9))
+    (is (not (can-move-left? [0 1 2 3 4 5 6 7 8 9] 0)))
+    (is (not (can-move-left? [0 1 2 3 4 5 6 7 8 9] 10)))
+    (is (not (can-move-left? [0 1 2 3 4 5 6 7 8 9] -1)))
+    (is (not (can-move-left? [0 1 2 3 4 5 6 7 8 9] 10))))
+  (testing "can-move-right? test"
+    (is (can-move-right? [0 1 2 3 4 5 6 7 8 9] 0))
+    (is (can-move-right? [0 1 2 3 4 5 6 7 8 9] 8))
+    (is (not (can-move-right? [0 1 2 3 4 5 6 7 8 9] 9)))
+    (is (not (can-move-right? [0 1 2 3 4 5 6 7 8 9] 10)))
+    (is (not (can-move-right? [0 1 2 3 4 5 6 7 8 9] -1)))
+    (is (not (can-move-right? [0 1 2 3 4 5 6 7 8 9] 10))))
   (testing "vector move left index out of bound"
     (is (= (move-left [0 1 2 3 4 5 6 7 8 9] 0) [0 1 2 3 4 5 6 7 8 9]))
     (is (= (move-left [0 1 2 3 4 5 6 7 8 9] 10) [0 1 2 3 4 5 6 7 8 9])))
@@ -31,7 +45,37 @@
     (is (= (move-right [0 1 2 3 4 5 6 7 8 9] 7) [0 1 2 3 4 5 6 8 7 9]))
     (is (= (move-right [0 1 2 3 4 5 6 7 8 9] 8) [0 1 2 3 4 5 6 7 9 8]))))
 
+(deftest move-cycled-test
+  (testing "regular moving left test"
+    (is (= (move-left-cycled [0 1 2 3 4 5 6 7 8 9] 9) [0 1 2 3 4 5 6 7 9 8]))
+    (is (= (move-left-cycled [0 1 2 3 4 5 6 7 8 9] 1) [1 0 2 3 4 5 6 7 8 9])))
+  (testing "regular moving right test"
+    (is (= (move-right-cycled [0 1 2 3 4 5 6 7 8 9] 0) [1 0 2 3 4 5 6 7 8 9]))
+    (is (= (move-right-cycled [0 1 2 3 4 5 6 7 8 9] 8) [0 1 2 3 4 5 6 7 9 8])))
+  (testing "index out of bound move-left-cycled test"
+    (is (= (move-left-cycled [0 1 2 3 4 5 6 7 8 9] 10) [0 1 2 3 4 5 6 7 8 9]))
+    (is (= (move-left-cycled [0 1 2 3 4 5 6 7 8 9] -1) [0 1 2 3 4 5 6 7 8 9])))
+  (testing "index out of bound move-right-cycled test"
+    (is (= (move-right-cycled [0 1 2 3 4 5 6 7 8 9] 10) [0 1 2 3 4 5 6 7 8 9]))
+    (is (= (move-right-cycled [0 1 2 3 4 5 6 7 8 9] -1) [0 1 2 3 4 5 6 7 8 9])))
+  (testing "cycling moving left test"
+    (is (= (move-left-cycled [0 1 2 3 4 5 6 7 8 9] 0) [1 2 3 4 5 6 7 8 9 0])))
+  (testing "cycling moving right test"
+    (is (= (move-right-cycled [0 1 2 3 4 5 6 7 8 9] 9) [9 0 1 2 3 4 5 6 7 8]))))
 
+(deftest move-test
+  (testing "vector move index out of bound"
+    (is (= (move [0 1 2 3 4 5 6 7 8 9] -1 1) [0 1 2 3 4 5 6 7 8 9]))
+    (is (= (move [0 1 2 3 4 5 6 7 8 9] 1 10) [0 1 2 3 4 5 6 7 8 9])))
+  (testing "vector move"
+    (is (= (move [0 1 2 3 4 5 6 7 8 9] 0 1) [1 0 2 3 4 5 6 7 8 9]))
+    (is (= (move [0 1 2 3 4 5 6 7 8 9] 9 0) [9 0 1 2 3 4 5 6 7 8]))
+    (is (= (move [0 1 2 3 4 5 6 7 8 9] 4 0) [4 0 1 2 3 5 6 7 8 9]))
+    (is (= (move [0 1 2 3 4 5 6 7 8 9] 4 9) [0 1 2 3 5 6 7 8 9 4]))
+    (is (= (move [0 1 2 3 4 5 6 7 8 9] 4 6) [0 1 2 3 5 6 4 7 8 9]))
+    (is (= (move [0 1 2 3 4 5 6 7 8 9] 6 4) [0 1 2 3 6 4 5 7 8 9]))
+    (is (= (move [0 1 2 3 4 5 6 7 8 9] 8 9) [0 1 2 3 4 5 6 7 9 8]))
+    (is (= (move [0 1 2 3 4 5 6 7 8 9] 3 1) [0 3 1 2 4 5 6 7 8 9]))))
 
 (deftest remove-nth-test
   (testing "vector remove-nth index out of bound"
@@ -68,21 +112,17 @@
     ))
 
 
-(deftest move-test
-  (testing "vector move index out of bound"
-    (is (= (move [0 1 2 3 4 5 6 7 8 9] -1 1) [0 1 2 3 4 5 6 7 8 9]))
-    (is (= (move [0 1 2 3 4 5 6 7 8 9] 1 10) [0 1 2 3 4 5 6 7 8 9])))
-  (testing "vector move"
-    (is (= (move [0 1 2 3 4 5 6 7 8 9] 0 1) [1 0 2 3 4 5 6 7 8 9]))
-    (is (= (move [0 1 2 3 4 5 6 7 8 9] 9 0) [9 0 1 2 3 4 5 6 7 8]))
-    (is (= (move [0 1 2 3 4 5 6 7 8 9] 4 0) [4 0 1 2 3 5 6 7 8 9]))
-    (is (= (move [0 1 2 3 4 5 6 7 8 9] 4 9) [0 1 2 3 5 6 7 8 9 4]))
-    (is (= (move [0 1 2 3 4 5 6 7 8 9] 4 6) [0 1 2 3 5 6 4 7 8 9]))
-    (is (= (move [0 1 2 3 4 5 6 7 8 9] 6 4) [0 1 2 3 6 4 5 7 8 9]))
-    (is (= (move [0 1 2 3 4 5 6 7 8 9] 8 9) [0 1 2 3 4 5 6 7 9 8]))
-    (is (= (move [0 1 2 3 4 5 6 7 8 9] 3 1) [0 3 1 2 4 5 6 7 8 9]))
-    ))
-
+(deftest get-next-prev-index-cycled
+  (testing "get-next-index-cycled"
+    (is (= (get-next-index-cycled [0 1 2 3 4 5 6 7 8 9] 0) 1))
+    (is (= (get-next-index-cycled [0 1 2 3 4 5 6 7 8 9] 9) 0))
+    (is (= (get-next-index-cycled [0 1 2 3 4 5 6 7 8 9] 10) 0))
+    (is (= (get-next-index-cycled [0 1 2 3 4 5 6 7 8 9] -1) 0)))
+  (testing "get-prev-index-cycled"
+    (is (= (get-prev-index-cycled [0 1 2 3 4 5 6 7 8 9] 0) 9))
+    (is (= (get-prev-index-cycled [0 1 2 3 4 5 6 7 8 9] 9) 8))
+    (is (= (get-prev-index-cycled [0 1 2 3 4 5 6 7 8 9] 10) 9))
+    (is (= (get-prev-index-cycled [0 1 2 3 4 5 6 7 8 9] -1) 9))))
 
 (deftest mapvec-to-map-test
   (is (= (mapvec-to-map [{:id 2 :cc 44}{:id 1 :cc 22}])

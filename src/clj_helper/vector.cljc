@@ -27,11 +27,37 @@
     coll
     (reduce conj (reduce conj (subvec coll 0 pos) [element]) (subvec coll pos))))
 
+(defn is-first-index? [coll pos]
+  (= pos 0))
+
+(defn is-last-index? [coll pos]
+  (= pos (max-index coll)))
+
+(defn can-move-left? [coll pos]
+  (and (valid-index? coll pos)
+       (not (is-first-index? coll pos))))
+
+(defn can-move-right? [coll pos]
+  (and (valid-index? coll pos)
+       (not (is-last-index? coll pos))))
+
+(defn get-next-index-cycled [coll pos]
+  (if (or (is-last-index? coll pos)
+          (not (valid-index? coll pos)))
+    0
+    (inc pos)))
+
+(defn get-prev-index-cycled [coll pos]
+  (if (or (is-first-index? coll pos)
+          (not (valid-index? coll pos)))
+    (max-index coll)
+    (dec pos)))
+
 (defn move-left
   "move elem in coll to the left"
   [coll pos]
   (let [elem (get coll pos)]
-    (if (or (zero? pos) (not (valid-index? coll pos)))
+    (if-not (can-move-left? coll pos)
       coll
       (-> coll
           (remove-nth pos)
@@ -41,17 +67,36 @@
   "move elem in coll to the right"
   [coll pos]
   (let [elem (get coll pos)]
-    (if (or (= pos (dec (count coll))) (not (valid-index? coll pos)))
+    (if-not (can-move-right? coll pos)
       coll
       (-> coll
           (remove-nth pos)
           (insert elem (inc pos))))))
 
+(defn move-left-cycled [coll pos]
+  (let [elem (get coll pos)]
+    (cond
+      (not (valid-index? coll pos)) coll
+      (can-move-left? coll pos) (move-left coll pos)
+      :else (-> coll
+                (remove-nth pos)
+                (insert elem (get-prev-index-cycled coll pos))))))
+
+(defn move-right-cycled [coll pos]
+  (let [elem (get coll pos)]
+    (cond
+      (not (valid-index? coll pos)) coll
+      (can-move-right? coll pos) (move-right coll pos)
+      :else (-> coll
+                (remove-nth pos)
+                (insert elem (get-next-index-cycled coll pos))))))
+
 (defn move
   "move elem from 'from' to 'to'"
   [coll from to]
   (let [elem (get coll from)]
-    (if (or (not (valid-index? coll to)) (not (valid-index? coll from)))
+    (if (or (not (valid-index? coll to))
+            (not (valid-index? coll from)))
       coll
       (let [elem (nth coll from)
             to (if (> to from)
@@ -86,7 +131,9 @@
   (into {} (map (juxt :id identity)) vec))
 
 
-(defn vconj [coll element]
+(defn vconj
+  "conjoin element to collection and make sure that it will return a vector"
+  [coll element]
   (if (vector? coll)
     (conj coll element)
     (recur (vec coll) element)))
