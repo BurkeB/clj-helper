@@ -86,7 +86,7 @@ lein test
 
 ## Copyright and License
 
-Copyright © 2020-2026 FH Münster
+Copyright © 2020-2026 FH Münster  
 Author: Bruno Burke
 
 Distributed under the Eclipse Public License version 2.0.
