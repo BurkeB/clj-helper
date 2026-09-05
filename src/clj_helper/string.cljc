@@ -11,7 +11,24 @@
   (:require [clojure.string :as string]
             #?(:clj [clojure.edn :as edn]
                :cljs [cljs.reader :as edn]))
-  #?(:clj (:import [java.time Instant])))
+  #?(:clj (:import [java.time Instant]
+                   [java.security SecureRandom])))
+
+(def alphanumeric-chars
+  (vec "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+
+#?(:clj (defonce ^:private secure-random (SecureRandom.)))
+
+#?(:clj
+   (defn- secure-random-index [^long n]
+     (.nextInt ^SecureRandom secure-random n))
+   :cljs
+   (defn- secure-random-index [n]
+     (if (and (exists? js/crypto) (exists? js/crypto.getRandomValues))
+       (let [arr (js/Uint32Array. 1)]
+         (js/crypto.getRandomValues arr)
+         (mod (aget arr 0) n))
+       (rand-int n))))
 
 (defn str= [a1 a2]
   (= (str a1) (str a2)))
@@ -33,9 +50,17 @@
       val
       "")))
 
-(defn get-random-code [length]
-  (let [chars (string/split "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" #"")]
-    (apply str (take length (repeatedly #(rand-nth chars))))))
+(defn get-random-code
+  "Generates pseudo-random alphanumeric code of given length.
+   Note: uses standard pseudo-random number generation (non-cryptographic)."
+  [length]
+  (apply str (repeatedly length #(rand-nth alphanumeric-chars))))
+
+(defn get-secure-random-code
+  "Generates cryptographically secure alphanumeric code of given length."
+  [length]
+  (apply str (repeatedly length #(nth alphanumeric-chars (secure-random-index (count alphanumeric-chars))))))
+
 
 (defn get-unique-id [prefix]
   (let [now #?(:cljs (.toISOString (new js/Date))
