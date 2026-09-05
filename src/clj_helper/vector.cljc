@@ -17,8 +17,8 @@
 (defn valid-index?
   "checks if pos is valid index in coll"
   [coll pos]
-  (and (<= pos (max-index coll))
-       (>= pos 0)))
+  (and (integer? pos)
+       (<= 0 pos (max-index coll))))
 
 (def inside? valid-index?)
 
@@ -103,38 +103,45 @@
 (defn move
   "move elem from 'from' to 'to'"
   [coll from to]
-  (let [elem (get coll from)]
-    (if (or (not (valid-index? coll to))
-            (not (valid-index? coll from)))
-      coll
-      (let [elem (nth coll from)
-            to (if (> to from)
-                 to
-                 to)]
-        (-> coll
-            (remove-nth from)
-            (insert elem to))))))
+  (if (or (not (valid-index? coll to))
+          (not (valid-index? coll from)))
+    coll
+    (let [elem (nth coll from)]
+      (-> coll
+          (remove-nth from)
+          (insert elem to)))))
 
 (defn get-from-array [array key value]
   (first (filter #(= (get % key) value) array)))
 
-(defn get-by [coll key val]
-  (let [get-fn (if (vector? key)
-                 get-in
-                 key)]
-    (some
-     #(when (= (get-fn % key) val) %)
-     coll)))
+(defn- extract-val [element key]
+  (cond
+    (vector? key) (get-in element key)
+    (fn? key)     (key element)
+    :else         (get element key)))
 
-(defn get-index-by [coll key val]
+(defn get-by
+  "Finds first element in coll where key/path matches val."
+  [coll key val]
+  (some
+   #(when (= (extract-val % key) val) %)
+   coll))
+
+(defn get-index-by
+  "Returns index of first element in coll where key/path matches val."
+  [coll key val]
   (first (keep (fn [[index element]]
-                 (when (= (key element) val)
+                 (when (= (extract-val element key) val)
                    index))
                (map-indexed vector coll))))
 
-(defn remove-by [coll key val]
-  (let [index (get-index-by coll key val)]
-    (remove-nth coll index)))
+(defn remove-by
+  "Removes first element in coll where key/path matches val."
+  [coll key val]
+  (if-let [index (get-index-by coll key val)]
+    (remove-nth coll index)
+    coll))
+
 
 (defn mapvec-to-map [vec]
   (into {} (map (juxt :id identity)) vec))
