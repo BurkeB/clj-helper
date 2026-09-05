@@ -2,31 +2,32 @@
 
 `clj-helper` is a Clojure and ClojureScript library providing a collection of utility functions for common tasks like string manipulation, vector operations, map updates, compression, and cryptographic helpers.
 
-Designed for cross-platform compatibility, most modules are written in `.cljc`, ensuring they work seamlessly in both JVM and Browser environments.
+Designed for cross-platform compatibility, most modules are written in `.cljc`, ensuring they work seamlessly in both JVM and Browser / Node.js environments.
 
 ## Features
 
-- **`clj-helper.string`**: Random code generation, unique IDs, string shortening, and basic parsing.
-- **`clj-helper.vector`**: Advanced vector operations like moving elements, removing by index, and finding elements by key/value.
+- **`clj-helper.string`**: Random code generation (pseudo-random and cryptographically secure), unique IDs, string shortening, and parsing.
+- **`clj-helper.vector`**: Advanced vector operations like moving elements, removing by index, and safe lookups by key/value.
 - **`clj-helper.map`**: Utilities for updating map values and checking key equality.
-- **`clj-helper.binary`**: Base64 encoding/decoding and byte array conversions.
-- **`clj-helper.compression`**: String compression and decompression (JVM only, using XZ).
-- **`clj-helper.crypto`**: Hashing and cryptographic utilities.
-- **`clj-helper.edn`**: EDN reading and writing helpers.
-- **`clj-helper.filter`**: Specialized filtering functions.
+- **`clj-helper.binary`**: Multi-byte UTF-8 encoding/decoding, Base64 conversions, and byte buffer helpers (cross-platform).
+- **`clj-helper.compression`**: String compression and decompression with decompression bomb protection (JVM only, using XZ).
+- **`clj-helper.crypto`**: SHA-256, SHA-1, and MD5 hashing (cross-platform, zero extra dependencies).
+- **`clj-helper.edn`**: EDN serialization and deserialization helpers.
+- **`clj-helper.filter`**: Flexible filtering functions (searchfilter, keyfilter, multifilter).
+- **`clj-helper.set`**: Set toggling utilities.
 
 ## Installation
 
 Add the following dependency to your `project.clj`:
 
 ```clojure
-[wwsoftware/clj-helper "0.0.3.13"]
+[wwsoftware/clj-helper "0.0.3.14"]
 ```
 
 Or to your `deps.edn`:
 
 ```clojure
-wwsoftware/clj-helper {:mvn/version "0.0.3.13"}
+wwsoftware/clj-helper {:mvn/version "0.0.3.14"}
 ```
 
 ## Usage
@@ -37,13 +38,31 @@ wwsoftware/clj-helper {:mvn/version "0.0.3.13"}
 (require '[clj-helper.string :as s])
 
 (s/get-random-code 8) 
-;; => "7A9B2C4D"
+;; => "7A9B2C4D" (pseudo-random)
+
+(s/get-secure-random-code 16)
+;; => "TNATKF9O3SWI9XYZ" (cryptographically secure)
 
 (s/get-unique-id "USR")
-;; => "20230505-1234-USR123"
+;; => "20260905T100000-USR123"
 
 (s/shorten "This is a long string" 10)
 ;; => "This is a "
+```
+
+### Cryptographic Helpers (Cross-Platform)
+
+```clojure
+(require '[clj-helper.crypto :as crypto])
+
+(crypto/string->sha256 "secret")
+;; => "2bb80e3bad52f13c5b40ecced17b995d813b1fb35ce1f3e583ff500a249d1022"
+
+(crypto/string->sha1 "checksum")
+;; => "8f310f8a9645f771da4cb4ae2adff91f4b8253fe"
+
+(crypto/string->md5 "checksum")
+;; => "341be97d9aff90c9978347f66f945b77"
 ```
 
 ### Vector Helpers
@@ -61,6 +80,21 @@ wwsoftware/clj-helper {:mvn/version "0.0.3.13"}
 
 (v/get-index-by [{:id 1 :name "A"} {:id 2 :name "B"}] :id 2)
 ;; => 1
+
+(v/remove-by [{:id 1 :name "A"} {:id 2 :name "B"}] :id 2)
+;; => [{:id 1 :name "A"}]
+```
+
+### Binary & Base64 (UTF-8, Cross-Platform)
+
+```clojure
+(require '[clj-helper.binary :as b])
+
+(b/string->base64 "Hello World")
+;; => "SGVsbG8gV29ybGQ="
+
+(b/base64->string "SGVsbG8gV29ybGQ=")
+;; => "Hello World"
 ```
 
 ### Compression (JVM only)
@@ -68,25 +102,41 @@ wwsoftware/clj-helper {:mvn/version "0.0.3.13"}
 ```clojure
 (require '[clj-helper.compression :as c])
 
-(-> "Some text"
+(-> "Some text to compress"
     c/string->xz->base64
     c/base64->xz->string)
-;; => "Some text"
+;; => "Some text to compress"
 ```
 
 ## Development
 
 ### Running Tests
 
-To run the tests, use Leiningen:
+To run the tests on the JVM, use Leiningen:
 
 ```bash
 lein test
 ```
 
+### Generating Documentation
+
+API documentation is generated with [Codox](https://github.com/weavejester/codox) and published to GitLab Pages:
+
+```bash
+lein codox
+```
+
+The generated HTML documentation will be placed in `target/doc/`.
+
+## Documentation
+
+The API reference is published automatically via GitLab Pages:
+- [API Documentation](https://ww-software.fh-muenster.io/libraries/clj-helper)
+
 ## Copyright and License
 
-Copyright © 2020-2026 FH Münster  
-Author: Bruno Burke
+Copyright © 2020-2026 FH Münster and contributors  
+Author: Bruno Burke <burke@fh-muenster.de>
 
 Distributed under the Eclipse Public License version 2.0.
+
