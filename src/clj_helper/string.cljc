@@ -85,12 +85,13 @@
 (defn parse-int [s]
   #?(:clj (try
             (Integer/parseInt s)
-            (catch Exception e
+            (catch Exception _
               nil))
-     :cljs (try
-             (js/parseInt s)
-             (catch :default e
-               nil))))
+     :cljs (let [v (js/parseInt s)]
+             (if (js/isNaN v)
+               nil
+               v))))
+
 
 
 (defn quote-text [text]

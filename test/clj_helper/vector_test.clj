@@ -173,4 +173,37 @@
                 {:data {:id "7" :a 4}}]]
       (is (= (get-by data [:data :id] "1") {:data {:id "1" :a 3}}))
       (is (= (get-by data [:data :id] "6") {:data {:id "6" :a 2}}))
-      (is (not= (get-by data [:data :id] 6) {:data {:id "6" :a 2}})))))
+      (is (not= (get-by data [:data :id] 6) {:data {:id "6" :a 2}}))))
+  (testing "get with string map-key (e.g. JSON map)"
+    (let [data [{"id" 1 :name "A"} {"id" 2 :name "B"}]]
+      (is (= (get-by data "id" 2) {"id" 2 :name "B"}))
+      (is (nil? (get-by data "id" 99)))))
+  (testing "get-by false match prevention"
+    (let [data [{:foo 1} {:bar 2}]]
+      (is (nil? (get-by data :missing :missing))))))
+
+(deftest remove-by-test
+  (testing "remove-by existing element"
+    (let [data [{:id 1 :name "A"} {:id 2 :name "B"} {:id 3 :name "C"}]]
+      (is (= (remove-by data :id 2)
+             [{:id 1 :name "A"} {:id 3 :name "C"}]))))
+  (testing "remove-by non-existing element does not throw NPE"
+    (let [data [{:id 1 :name "A"} {:id 2 :name "B"}]]
+      (is (= (remove-by data :id 999)
+             data))
+      (is (= (remove-by [1 2 3] :missing 42)
+             [1 2 3])))))
+
+(deftest get-index-by-test
+  (testing "get-index-by keyword"
+    (let [data [{:id 10} {:id 20} {:id 30}]]
+      (is (= (get-index-by data :id 20) 1))
+      (is (nil? (get-index-by data :id 99)))))
+  (testing "get-index-by vector path"
+    (let [data [{:user {:id "u1"}} {:user {:id "u2"}}]]
+      (is (= (get-index-by data [:user :id] "u2") 1))
+      (is (nil? (get-index-by data [:user :id] "u99")))))
+  (testing "get-index-by string key"
+    (let [data [{"code" "A"} {"code" "B"}]]
+      (is (= (get-index-by data "code" "B") 1)))))
+

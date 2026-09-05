@@ -11,7 +11,7 @@
   (:require [clojure.string :refer [includes? lower-case]]))
 
 (defn searchfilter [string substring]
-  (when (string? string)
+  (when (and (string? string) (string? substring))
     (includes? (lower-case string) (lower-case substring))))
 
 (defn keyfilter [map substring keys]
