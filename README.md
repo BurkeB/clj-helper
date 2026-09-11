@@ -133,6 +133,14 @@ The generated HTML documentation will be placed in `target/doc/`.
 The API reference is published automatically via GitLab Pages:
 - [API Documentation](https://ww-software.fh-muenster.io/libraries/clj-helper)
 
+## Usage Notice
+
+This software is result of an experimental research project developed as part of work at FH Münster. Its release as open source software is intended to facilitate collaboration and further development within the community.
+
+The software is provided in its current state "as is". Any deployment, hosting, or production use is undertaken entirely at your own risk. Neither the developers nor FH Münster assume any warranty or liability for the stability, security, correctness, or fitness of the software for any particular purpose.
+
+For detailed legal terms and disclaimers, please refer to the accompanying Eclipse Public License 2.0 (EPL-2.0).
+
 ## Copyright and License
 
 Copyright © 2020-2026 FH Münster and contributors  
