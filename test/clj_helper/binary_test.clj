@@ -1,3 +1,12 @@
+;; Copyright © 2020-2026 FH Münster and contributors
+;; Author: Bruno Burke <burke@fh-muenster.de>
+;;
+;; This program and the accompanying materials are made available under the
+;; terms of the Eclipse Public License 2.0 which is available at
+;; https://www.eclipse.org/legal/epl-2.0/
+;;
+;; SPDX-License-Identifier: EPL-2.0
+
 (ns clj-helper.binary-test
   (:require [clojure.test :refer :all]
             [clj-helper.binary :refer :all]))
@@ -12,8 +21,7 @@
     (let [test-string "abc"]
       (is (=
            (byte-array->string (byte-array (doall (map byte '(97 98 99)))))
-           "abc"
-           ))))
+           "abc"))))
   (testing "Encode Hallo to SGFsbG8="
     (let [test-string "Hallo"
           test-result "SGFsbG8="]
@@ -40,10 +48,21 @@
            test-string))))
   (let [random-string "fsfdfdggfdfdg"]
     (testing (str "Base64 Encode/Decode Roundtrip with random string: " random-string)
-      (= (-> random-string
-             string->byte-array
-             byte-array->base64
-             base64->byte-array
-             byte-array->string)
-         random-string))))
+      (is (= (-> random-string
+                 string->byte-array
+                 byte-array->base64
+                 base64->byte-array
+                 byte-array->string)
+             random-string))))
+  (testing "UTF-8 multi-byte roundtrip with umlauts and emoji"
+    (let [utf8-str "Têxt mît Söndërzeichen und Ümläuten + Emoji 🎲🎰"]
+      (is (= (-> utf8-str
+                 string->byte-array
+                 byte-array->string)
+             utf8-str))
+      (is (= (-> utf8-str
+                 string->base64
+                 base64->string)
+             utf8-str)))))
+
 

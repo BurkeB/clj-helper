@@ -1,8 +1,34 @@
+;; Copyright © 2020-2026 FH Münster and contributors
+;; Author: Bruno Burke <burke@fh-muenster.de>
+;;
+;; This program and the accompanying materials are made available under the
+;; terms of the Eclipse Public License 2.0 which is available at
+;; https://www.eclipse.org/legal/epl-2.0/
+;;
+;; SPDX-License-Identifier: EPL-2.0
+
 (ns clj-helper.string
   (:require [clojure.string :as string]
             #?(:clj [clojure.edn :as edn]
                :cljs [cljs.reader :as edn]))
-  #?(:clj (:import [java.time Instant])))
+  #?(:clj (:import [java.time Instant]
+                   [java.security SecureRandom])))
+
+(def alphanumeric-chars
+  (vec "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+
+#?(:clj (defonce ^:private secure-random (SecureRandom.)))
+
+#?(:clj
+   (defn- secure-random-index [^long n]
+     (.nextInt ^SecureRandom secure-random n))
+   :cljs
+   (defn- secure-random-index [n]
+     (if (and (exists? js/crypto) (exists? js/crypto.getRandomValues))
+       (let [arr (js/Uint32Array. 1)]
+         (js/crypto.getRandomValues arr)
+         (mod (aget arr 0) n))
+       (rand-int n))))
 
 (defn str= [a1 a2]
   (= (str a1) (str a2)))
@@ -24,9 +50,17 @@
       val
       "")))
 
-(defn get-random-code [length]
-  (let [chars (string/split "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" #"")]
-    (apply str (take length (repeatedly #(rand-nth chars))))))
+(defn get-random-code
+  "Generates pseudo-random alphanumeric code of given length.
+   Note: uses standard pseudo-random number generation (non-cryptographic)."
+  [length]
+  (apply str (repeatedly length #(rand-nth alphanumeric-chars))))
+
+(defn get-secure-random-code
+  "Generates cryptographically secure alphanumeric code of given length."
+  [length]
+  (apply str (repeatedly length #(nth alphanumeric-chars (secure-random-index (count alphanumeric-chars))))))
+
 
 (defn get-unique-id [prefix]
   (let [now #?(:cljs (.toISOString (new js/Date))
@@ -51,12 +85,13 @@
 (defn parse-int [s]
   #?(:clj (try
             (Integer/parseInt s)
-            (catch Exception e
+            (catch Exception _
               nil))
-     :cljs (try
-             (js/parseInt s)
-             (catch :default e
-               nil))))
+     :cljs (let [v (js/parseInt s)]
+             (if (js/isNaN v)
+               nil
+               v))))
+
 
 
 (defn quote-text [text]

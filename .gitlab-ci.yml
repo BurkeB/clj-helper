@@ -1,4 +1,4 @@
-image: clojure:lein-2.7.1-alpine
+image: clojure:lein-alpine
 
 stages:
 - build
@@ -12,9 +12,9 @@ build:
   stage: build
   script:
     - lein clean
-    - lein uberjar
+    - lein jar
 
-test1:
+test:
   stage: test
   script:
     - lein test
@@ -24,5 +24,17 @@ deploy:
   script:
     - echo "{:user {:deploy-repositories [[\"internal\" {:url \"${ARTIFACTORY_DEPLOY_REPOSITORY}\" :username :env/artifactory_user :password :env/artifactory_pw :sign-releases false :checksum :ignore}]]}}" > ~/.lein/profiles.clj
     - lein deploy internal
+  only:
+    - master
+
+pages:
+  stage: deploy
+  script:
+    - lein codox
+    - rm -rf public
+    - mv target/doc public
+  artifacts:
+    paths:
+      - public
   only:
     - master

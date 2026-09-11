@@ -1,3 +1,4 @@
-# Introduction to document-storage
+# Introduction to clj-helper
 
-TODO: write [great documentation](http://jacobian.org/writing/what-to-write/)
+`clj-helper` is a collection of utility functions for Clojure and ClojureScript.
+See the [README.md](../README.md) for detailed usage examples and features.
