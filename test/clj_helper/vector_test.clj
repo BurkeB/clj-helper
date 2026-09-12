@@ -75,6 +75,7 @@
 (deftest move-test
   (testing "vector move index out of bound"
     (is (= (move [0 1 2 3 4 5 6 7 8 9] -1 1) [0 1 2 3 4 5 6 7 8 9]))
+    (is (= (move [0 1 2 3 4 5 6 7 8 9] 1 10 :append-ok? true) [0 2 3 4 5 6 7 8 9 1]))
     (is (= (move [0 1 2 3 4 5 6 7 8 9] 1 10) [0 1 2 3 4 5 6 7 8 9])))
   (testing "vector move"
     (is (= (move [0 1 2 3 4 5 6 7 8 9] 0 1) [1 0 2 3 4 5 6 7 8 9]))
@@ -85,6 +86,39 @@
     (is (= (move [0 1 2 3 4 5 6 7 8 9] 6 4) [0 1 2 3 6 4 5 7 8 9]))
     (is (= (move [0 1 2 3 4 5 6 7 8 9] 8 9) [0 1 2 3 4 5 6 7 9 8]))
     (is (= (move [0 1 2 3 4 5 6 7 8 9] 3 1) [0 3 1 2 4 5 6 7 8 9]))))
+
+(deftest swap-at-test
+  (testing "swap-at elements"
+    (is (= (swap-at [:a :b :c :d] 0 3) [:d :b :c :a]))
+    (is (= (swap-at [:a :b :c :d] 1 2) [:a :c :b :d]))
+    (is (= (swap-at [:a :b :c :d] 1 1) [:a :b :c :d]))
+    (is (= (swap-at [:a :b :c :d] -1 2) [:a :b :c :d]))
+    (is (= (swap-at [:a :b :c :d] 0 10) [:a :b :c :d]))))
+
+(deftest remove-at-test
+  (testing "vector remove-at"
+    (is (= (remove-at [0 1 2 3 4 5 6 7 8 9] 10) [0 1 2 3 4 5 6 7 8 9]))
+    (is (= (remove-at [0 1 2 3 4 5 6 7 8 9] -1) [0 1 2 3 4 5 6 7 8 9]))
+    (is (= (remove-at [0 1 2 3 4 5 6 7 8 9] 0) [1 2 3 4 5 6 7 8 9]))
+    (is (= (remove-at [0 1 2 3 4 5 6 7 8 9] 4) [0 1 2 3 5 6 7 8 9]))))
+
+(deftest insert-at-test
+  (testing "vector insert-at"
+    (is (= (insert-at [0 1 2 3] 0 "x") ["x" 0 1 2 3]))
+    (is (= (insert-at [0 1 2 3] 2 "x") [0 1 "x" 2 3]))
+    (is (= (insert-at [0 1 2 3] 4 "x") [0 1 2 3 "x"]))
+    (is (thrown? AssertionError (insert-at [0 1 2 3] -1 "x")))
+    (is (thrown? AssertionError (insert-at [0 1 2 3] 5 "x"))))
+  (testing "vector insert-at-safe"
+    (is (= (insert-at-safe [0 1 2 3] 1 "x") [0 "x" 1 2 3]))
+    (is (= (insert-at-safe [0 1 2 3] -1 "x") [0 1 2 3]))
+    (is (= (insert-at-safe [0 1 2 3] 10 "x") [0 1 2 3]))))
+
+(deftest vconj-test
+  (testing "vconj returns vector"
+    (is (= (vconj [1 2] 3) [1 2 3]))
+    (is (= (vconj '(1 2) 3) [1 2 3]))
+    (is (vector? (vconj '(1 2) 3)))))
 
 (deftest remove-nth-test
   (testing "vector remove-nth index out of bound"

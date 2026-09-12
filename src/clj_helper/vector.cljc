@@ -1,5 +1,5 @@
+;; Copyright © 2026 Bruno Burke
 ;; Copyright © 2020-2026 FH Münster and contributors
-;; Author: Bruno Burke <burke@fh-muenster.de>
 ;;
 ;; This program and the accompanying materials are made available under the
 ;; terms of the Eclipse Public License 2.0 which is available at
@@ -9,32 +9,54 @@
 
 (ns clj-helper.vector)
 
+;; Index utilities
 (defn max-index
-  "returns highest index"
-  [coll]
-  (dec (count coll)))
+  "Returns the highest valid index of a vector."
+  [v]
+  (dec (count v)))
 
 (defn valid-index?
-  "checks if pos is valid index in coll"
-  [coll pos]
-  (and (integer? pos)
-       (<= 0 pos (max-index coll))))
+  "Checks if idx is within the bounds of vector v (inclusive)."
+  [v idx]
+  (and (integer? idx)
+       (<= 0 idx (max-index v))))
 
 (def inside? valid-index?)
 
-(defn remove-nth
-  "remove elem in coll"
-  [coll pos]
-  (if-not (valid-index? coll pos)
-    coll
-    (vec (concat (subvec coll 0 pos) (subvec coll (inc pos))))))
+;; Element removal and insertion
+(defn remove-at
+  "Removes the element at idx from vector v, returning a new vector."
+  [v idx]
+  (if (valid-index? v idx)
+    (into (subvec v 0 idx) (subvec v (inc idx)))
+    v))
+
+(def remove-nth
+  "Alias for remove-at for backward compatibility."
+  remove-at)
+
+(defn insert-at
+  "Throws if idx is not an integer or out of bounds.
+   Inserts x into vector v at position idx."
+  [v idx x]
+  {:pre [(integer? idx)
+         (<= 0 idx (count v))]}
+  (into (subvec v 0 idx)
+        (cons x (subvec v idx))))
+
+(defn insert-at-safe
+  "Like insert-at, but returns original v on any error."
+  [v idx x]
+  (if (valid-index? v idx)
+    (insert-at v idx x)
+    v))
 
 (defn insert
-  "insert elem in coll at pos"
+  "Insert element into coll at pos. If pos is out of bounds, returns coll."
   [coll element pos]
-  (if-not (<= 0 pos (count coll))
+  (if (or (not (integer? pos)) (not (<= 0 pos (count coll))))
     coll
-    (reduce conj (reduce conj (subvec coll 0 pos) [element]) (subvec coll pos))))
+    (insert-at (vec coll) pos element)))
 
 (defn is-first-index? [coll pos]
   (= pos 0))
@@ -42,86 +64,101 @@
 (defn is-last-index? [coll pos]
   (= pos (max-index coll)))
 
-(defn can-move-left? [coll pos]
-  (and (valid-index? coll pos)
-       (not (is-first-index? coll pos))))
+;; Swap and move operations
+(defn swap-at
+  "Swaps elements at indices i and j in vector v."
+  [v i j]
+  (if (and (valid-index? v i) (valid-index? v j) (not= i j))
+    (assoc v i (v j) j (v i))
+    v))
 
-(defn can-move-right? [coll pos]
-  (and (valid-index? coll pos)
-       (not (is-last-index? coll pos))))
+(defn can-move-left?
+  "Returns true if the element at idx can move left within vector v."
+  [v idx]
+  (and (valid-index? v idx)
+       (> idx 0)))
 
-(defn get-next-index-cycled [coll pos]
-  (if (or (is-last-index? coll pos)
-          (not (valid-index? coll pos)))
-    0
-    (inc pos)))
-
-(defn get-prev-index-cycled [coll pos]
-  (if (or (is-first-index? coll pos)
-          (not (valid-index? coll pos)))
-    (max-index coll)
-    (dec pos)))
-
-(defn move-left
-  "move elem in coll to the left"
-  [coll pos]
-  (let [elem (get coll pos)]
-    (if-not (can-move-left? coll pos)
-      coll
-      (-> coll
-          (remove-nth pos)
-          (insert elem (dec pos))))))
-
-(defn move-right
-  "move elem in coll to the right"
-  [coll pos]
-  (let [elem (get coll pos)]
-    (if-not (can-move-right? coll pos)
-      coll
-      (-> coll
-          (remove-nth pos)
-          (insert elem (inc pos))))))
-
-(defn move-left-cycled [coll pos]
-  (let [elem (get coll pos)]
-    (cond
-      (not (valid-index? coll pos)) coll
-      (can-move-left? coll pos) (move-left coll pos)
-      :else (-> coll
-                (remove-nth pos)
-                (insert elem (get-prev-index-cycled coll pos))))))
-
-(defn move-right-cycled [coll pos]
-  (let [elem (get coll pos)]
-    (cond
-      (not (valid-index? coll pos)) coll
-      (can-move-right? coll pos) (move-right coll pos)
-      :else (-> coll
-                (remove-nth pos)
-                (insert elem (get-next-index-cycled coll pos))))))
+(defn can-move-right?
+  "Returns true if the element at idx can move right within vector v."
+  [v idx]
+  (and (valid-index? v idx)
+       (< idx (max-index v))))
 
 (defn move
-  "move elem from 'from' to 'to'"
-  [coll from to]
-  (if (or (not (valid-index? coll to))
-          (not (valid-index? coll from)))
-    coll
-    (let [elem (nth coll from)]
-      (-> coll
-          (remove-nth from)
-          (insert elem to)))))
+  "Moves element from index 'from' to index 'to' within vector v.
+   Optional opts:
+   - :append-ok? (default false): whether to allow `to` to be (count v), appending the element."
+  [v from to & {:keys [append-ok?] :or {append-ok? false}}]
+  (let [max-to (if append-ok? (count v) (max-index v))]
+    (if (and (valid-index? v from)
+             (integer? to)
+             (<= 0 to max-to))
+      (let [x   (v from)
+            v'  (remove-at v from)
+            to' (cond
+                  (< from to) (min (count v') to)
+                  :else       to)]
+        (insert-at v' to' x))
+      v)))
 
-(defn get-from-array [array key value]
-  (first (filter #(= (get % key) value) array)))
+(defn move-left
+  "Swaps element at idx with its left neighbour."
+  [v idx]
+  (if (can-move-left? v idx)
+    (swap-at v idx (dec idx))
+    v))
+
+(defn move-right
+  "Swaps element at idx with its right neighbour."
+  [v idx]
+  (if (can-move-right? v idx)
+    (swap-at v idx (inc idx))
+    v))
+
+(defn get-next-index-cycled
+  "Returns (idx + 1) mod (count v), with invalid idx cycling to 0."
+  [v idx]
+  (if (or (not (valid-index? v idx))
+          (= idx (max-index v)))
+    0
+    (inc idx)))
+
+(defn get-prev-index-cycled
+  "Returns (idx - 1) mod (count v), with invalid idx cycling to last index."
+  [v idx]
+  (if (or (not (valid-index? v idx))
+          (zero? idx))
+    (max-index v)
+    (dec idx)))
+
+(defn move-left-cycled [v idx]
+  (if (valid-index? v idx)
+    (move v idx (get-prev-index-cycled v idx))
+    v))
+
+(defn move-right-cycled [v idx]
+  (if (valid-index? v idx)
+    (move v idx (get-next-index-cycled v idx))
+    v))
+
+;; Finder functions
+(defn get-from-array
+  "Finds first map in a sequence where key k equals val."
+  [arr k val]
+  (some #(when (= (get % k) val) %) arr))
 
 (defn- extract-val [element key]
   (cond
-    (vector? key) (get-in element key)
-    (fn? key)     (key element)
-    :else         (get element key)))
+    (fn? key)         (key element)
+    (sequential? key) (get-in element key)
+    :else             (get element key)))
 
 (defn get-by
-  "Finds first element in coll where key/path matches val."
+  "Finds first element in coll where extracting with key matches val.
+   key can be:
+     • a function:    applied to each element
+     • a vector path: get-in
+     • any other key: get"
   [coll key val]
   (some
    #(when (= (extract-val % key) val) %)
@@ -130,26 +167,27 @@
 (defn get-index-by
   "Returns index of first element in coll where key/path matches val."
   [coll key val]
-  (first (keep (fn [[index element]]
-                 (when (= (extract-val element key) val)
-                   index))
-               (map-indexed vector coll))))
+  (first
+   (keep-indexed
+    (fn [i e]
+      (when (= (extract-val e key) val)
+        i))
+    coll)))
 
 (defn remove-by
   "Removes first element in coll where key/path matches val."
   [coll key val]
   (if-let [index (get-index-by coll key val)]
-    (remove-nth coll index)
+    (remove-at coll index)
     coll))
 
-
-(defn mapvec-to-map [vec]
+;; Conversions
+(defn mapvec-to-map
+  "Converts a vector of maps with :id into a map keyed by :id."
+  [vec]
   (into {} (map (juxt :id identity)) vec))
 
-
 (defn vconj
-  "conjoin element to collection and make sure that it will return a vector"
-  [coll element]
-  (if (vector? coll)
-    (conj coll element)
-    (recur (vec coll) element)))
+  "Conj x onto coll, ensuring the result is a vector."
+  [coll x]
+  (conj (if (vector? coll) coll (vec coll)) x))

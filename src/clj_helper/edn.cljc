@@ -1,5 +1,5 @@
+;; Copyright © 2026 Bruno Burke
 ;; Copyright © 2020-2026 FH Münster and contributors
-;; Author: Bruno Burke <burke@fh-muenster.de>
 ;;
 ;; This program and the accompanying materials are made available under the
 ;; terms of the Eclipse Public License 2.0 which is available at
@@ -8,19 +8,34 @@
 ;; SPDX-License-Identifier: EPL-2.0
 
 (ns clj-helper.edn
-  (:require [clojure.string :as string]
-            #?(:clj [clojure.edn :as edn]
+  "Utilities for EDN serialization and deserialization (and JSON for ClojureScript)."
+  (:require #?(:clj [clojure.edn :as edn]
                :cljs [cljs.reader :as edn])
             #?(:clj [clojure.pprint :as pprint]
                :cljs [cljs.pprint :as pprint])))
 
+(defn edn->str
+  "Serializes Clojure data to a pretty-printed EDN string."
+  [data]
+  (binding [pprint/*print-right-margin* 80]
+    (with-out-str
+      (pprint/pprint data))))
 
-(defn serialize-edn [edn-data]
-  (with-out-str (pprint/pprint edn-data)))
+(def serialize-edn
+  "Alias for edn->str for backward compatibility."
+  edn->str)
 
-(defn deserialize-edn [ednstr]
-  (edn/read-string ednstr))
+(defn str->edn
+  "Parses an EDN-formatted string into Clojure data."
+  [s]
+  (edn/read-string s))
+
+(def deserialize-edn
+  "Alias for str->edn for backward compatibility."
+  str->edn)
 
 #?(:cljs
-   (defn clj->json [object]
+   (defn clj->json
+     "Converts ClojureScript data structures to a JSON string with indentation."
+     [object]
      (js/JSON.stringify (clj->js object) nil 2)))

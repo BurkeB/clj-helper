@@ -63,6 +63,11 @@
       (is (= (-> utf8-str
                  string->base64
                  base64->string)
-             utf8-str)))))
+             utf8-str))))
+  (testing "Concise binary aliases"
+    (let [s "hello"]
+      (is (= (bytes->string (string->bytes s)) s))
+      (is (= (bytes->base64 (string->bytes s)) "aGVsbG8="))
+      (is (= (bytes->string (base64->bytes "aGVsbG8=")) s)))))
 
 

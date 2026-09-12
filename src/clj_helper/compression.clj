@@ -1,5 +1,5 @@
+;; Copyright © 2026 Bruno Burke
 ;; Copyright © 2020-2026 FH Münster and contributors
-;; Author: Bruno Burke <burke@fh-muenster.de>
 ;;
 ;; This program and the accompanying materials are made available under the
 ;; terms of the Eclipse Public License 2.0 which is available at
@@ -71,5 +71,10 @@
 (defn base64->xz->string [b64xz]
   (xz->string (base64->byte-array b64xz)))
 
+(def compress->base64
+  "Compresses a UTF-8 string and encodes the result as Base64 (alias for string->xz->base64)."
+  string->xz->base64)
 
-
+(def base64->decompress
+  "Decodes a Base64 string then decompresses to a UTF-8 string (alias for base64->xz->string)."
+  base64->xz->string)
