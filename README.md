@@ -21,13 +21,13 @@ Designed for cross-platform compatibility, most modules are written in `.cljc`, 
 Add the following dependency to your `project.clj`:
 
 ```clojure
-[wwsoftware/clj-helper "0.0.3.14"]
+[de.bburke/clj-helper "0.1.0"]
 ```
 
 Or to your `deps.edn`:
 
 ```clojure
-wwsoftware/clj-helper {:mvn/version "0.0.3.14"}
+de.bburke/clj-helper {:mvn/version "0.1.0"}
 ```
 
 ## Usage
@@ -143,8 +143,9 @@ For detailed legal terms and disclaimers, please refer to the accompanying Eclip
 
 ## Copyright and License
 
+Copyright © 2026 Bruno Burke  
 Copyright © 2020-2026 FH Münster and contributors  
-Author: Bruno Burke <burke@fh-muenster.de>
 
 Distributed under the Eclipse Public License version 2.0.
+
 
