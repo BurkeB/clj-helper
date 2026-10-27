@@ -52,7 +52,8 @@
        (any-key-contains? m v (keys m))
 
        (= k :blacklist)
-       (not (contains? (set (:blacklist attrs)) (:id m)))
+       (let [bl (if (set? v) v (set v))]
+         (not (contains? bl (:id m))))
 
        :else
        (= (get m k) v)))
@@ -66,4 +67,9 @@
 (defn filter-by-attrs
   "Filters a seq of maps, returning only those where multi-filter? returns true."
   [coll attrs]
-  (filter #(multi-filter? % attrs) coll))
+  (let [attrs' (if (and (contains? attrs :blacklist)
+                        (some? (:blacklist attrs))
+                        (not (set? (:blacklist attrs))))
+                 (update attrs :blacklist set)
+                 attrs)]
+    (filter #(multi-filter? % attrs') coll)))

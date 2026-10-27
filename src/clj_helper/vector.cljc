@@ -7,7 +7,8 @@
 ;;
 ;; SPDX-License-Identifier: EPL-2.0
 
-(ns clj-helper.vector)
+(ns clj-helper.vector
+  (:require [clj-helper.map :refer [->getter]]))
 
 ;; Index utilities
 (defn max-index
@@ -142,17 +143,6 @@
     v))
 
 ;; Finder functions
-(defn get-from-array
-  "Finds first map in a sequence where key k equals val."
-  [arr k val]
-  (some #(when (= (get % k) val) %) arr))
-
-(defn- extract-val [element key]
-  (cond
-    (fn? key)         (key element)
-    (sequential? key) (get-in element key)
-    :else             (get element key)))
-
 (defn get-by
   "Finds first element in coll where extracting with key matches val.
    key can be:
@@ -160,19 +150,24 @@
      • a vector path: get-in
      • any other key: get"
   [coll key val]
-  (some
-   #(when (= (extract-val % key) val) %)
-   coll))
+  (let [getter (->getter key)]
+    (some #(when (= (getter %) val) %) coll)))
+
+(defn get-from-array
+  "Finds first map in a sequence where key k equals val."
+  [arr k val]
+  (get-by arr k val))
 
 (defn get-index-by
   "Returns index of first element in coll where key/path matches val."
   [coll key val]
-  (first
-   (keep-indexed
-    (fn [i e]
-      (when (= (extract-val e key) val)
-        i))
-    coll)))
+  (let [getter (->getter key)]
+    (first
+     (keep-indexed
+      (fn [i e]
+        (when (= (getter e) val)
+          i))
+      coll))))
 
 (defn remove-by
   "Removes first element in coll where key/path matches val."

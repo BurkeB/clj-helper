@@ -19,16 +19,28 @@ Designed for cross-platform compatibility, most modules are written in `.cljc`, 
 
 ## Installation
 
-Add the following dependency to your `project.clj`:
+### Clojure CLI (`deps.edn`)
+
+Add this repository as a Git dependency:
 
 ```clojure
-[de.bburke/clj-helper "0.1.0"]
+{:deps {de.bburke/clj-helper
+        {:git/url "https://github.com/BurkeB/clj-helper.git"
+         :git/sha "<commit-sha>"}}}
 ```
 
-Or to your `deps.edn`:
+### Leiningen (`project.clj`)
+
+To use this library in a Leiningen project without publishing to a remote repository, install it to your local `~/.m2` repository first:
+
+```bash
+lein install
+```
+
+Then add the dependency to your `project.clj`:
 
 ```clojure
-de.bburke/clj-helper {:mvn/version "0.1.0"}
+[de.bburke/clj-helper "0.2.0"]
 ```
 
 ## Usage

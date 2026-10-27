@@ -39,13 +39,12 @@
 
 #?(:clj
    (defn byte-buffer->byte-array
-     "Extracts byte array from ByteBuffer."
+     "Extracts byte array from ByteBuffer (slice-safe)."
      [^ByteBuffer buffer]
-     (if (.hasArray buffer)
-       (.array buffer)
-       (let [bytes (byte-array (.remaining buffer))]
-         (.get buffer bytes)
-         bytes))))
+     (let [dup (.duplicate buffer)
+           bytes (byte-array (.remaining dup))]
+       (.get dup bytes)
+       bytes)))
 
 (defn byte-array->base64
   "Encodes byte array to Base64 string."

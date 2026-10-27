@@ -10,7 +10,8 @@
 (ns clj-helper.i18n
   "A simple i18n utility for Clojure(Script).
    Treats translations as {:i18n true :en \"...\"} maps."
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str])
+  #?(:cljs (:require-macros [clj-helper.i18n :refer [with-lang]])))
 
 ;; -----------------------------------------------------------------------------
 ;; 1. State & Configuration

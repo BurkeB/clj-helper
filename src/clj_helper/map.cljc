@@ -18,12 +18,22 @@
          (juxt first (comp ufn last))
          umap)))
 
+(defn ->getter
+  "Returns an extractor function for k:
+   - a function: applied directly to the map
+   - a sequential path: looked up via get-in
+   - any other key: looked up via get"
+  [k]
+  (cond
+    (fn? k)         k
+    (sequential? k) #(get-in % k)
+    :else           #(get % k)))
+
 (defn key-equals?
   "Returns true if the value at key k in map m equals val.
-   Supports nested lookup when k is a sequential collection / vector (via get-in)."
+   Supports nested lookup when k is a sequential collection / vector (via get-in) or a function."
   [m k val]
-  (let [getter (if (sequential? k) get-in get)]
-    (= (getter m k) val)))
+  (= ((->getter k) m) val))
 
 (def keyqual
   "Alias for key-equals? for backward compatibility."

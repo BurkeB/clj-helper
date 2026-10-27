@@ -102,7 +102,7 @@
   (when (string? s)
     (try
       #?(:clj (Integer/parseInt s)
-         :cljs (let [res (js/parseInt s)]
+         :cljs (let [res (js/parseInt s 10)]
                  (if (js/isNaN res) nil res)))
       (catch #?(:clj Exception :cljs :default) _
         nil))))
