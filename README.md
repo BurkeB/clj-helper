@@ -71,6 +71,19 @@ Map-based i18n supporting fallbacks, active language resolvers, and dynamic scop
 ;; Dynamic scope (ideal for server-side rendering or per-request context)
 (i18n/with-lang :fr
   (i18n/i18n-get greeting)) ; => "Bonjour"
+
+;; Register a central dictionary and use `tr` with keyword lookup & interpolation
+(i18n/register-dictionary!
+ {:save {:en "Save" :de "Speichern"}
+  :confirm-delete {:en "Delete '%s'?" :de "'%s' wirklich löschen?"}
+  :reply-in-channel {:en "Reply to %1$s in %2$s" :de "In %2$s auf %1$s antworten"}
+  :greeting {:en "Hello {name}!" :de "Hallo {name}!"}})
+
+(i18n/tr :save) ; => "Save"
+(i18n/with-lang :de
+  (i18n/tr :confirm-delete "report.pdf")          ; => "'report.pdf' wirklich löschen?"
+  (i18n/tr :reply-in-channel "Alice" "#general")  ; => "In #general auf Alice antworten"
+  (i18n/tr :greeting {:name "Alice"}))            ; => "Hallo Alice!"
 ```
 
 ### String Helpers
